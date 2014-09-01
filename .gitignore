@@ -1,0 +1,6 @@
+vendor
+composer.lock
+tests/tmp
+tests/coverage.dat
+tests/src/DataTransfer/**/*.actual
+tests/src/DataTransfer/**/*.expected

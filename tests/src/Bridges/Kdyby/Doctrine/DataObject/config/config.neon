@@ -1,0 +1,5 @@
+doctrine:
+    driver: pdo_sqlite
+    path: %tempDir%/sqlite.db
+    metadata:
+        VenneTests\Bridges\Kdyby\Doctrine\DataTransfer: %appDir%
