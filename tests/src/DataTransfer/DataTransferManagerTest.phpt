@@ -70,6 +70,8 @@ class DataTransferManagerTest extends \Tester\TestCase
 
 			Assert::type('Venne\DataTransfer\DataTransferObjectIterator', $dataTransferObjectIterator);
 			foreach ($dataTransferObjectIterator as $key => $dataTransferObject) {
+				Assert::same($key + 1, $dataTransferObject->id);
+				Assert::equal(md5($key + 1), $dataTransferObject->name);
 				Assert::equal(array('id' => $key + 1, 'name' => md5($key + 1)), $dataTransferObject->toArray());
 			}
 			Assert::same($x, $mapper->repository->counter);
@@ -91,6 +93,8 @@ class DataTransferManagerTest extends \Tester\TestCase
 
 			Assert::type('Venne\DataTransfer\DataTransferObjectIterator', $dataTransferObjectIterator);
 			foreach ($dataTransferObjectIterator as $key => $dataTransferObject) {
+				Assert::same($key + 1, $dataTransferObject->id);
+				Assert::equal(md5($key + 1), $dataTransferObject->name);
 				Assert::equal(array('id' => $key + 1, 'name' => md5($key + 1)), $dataTransferObject->toArray());
 			}
 			Assert::same(1, $mapper->repository->counter);
@@ -103,6 +107,8 @@ class DataTransferManagerTest extends \Tester\TestCase
 
 			Assert::type('Venne\DataTransfer\DataTransferObjectIterator', $dataTransferObjectIterator);
 			foreach ($dataTransferObjectIterator as $key => $dataTransferObject) {
+				Assert::same($key + 1, $dataTransferObject->id);
+				Assert::equal(md5($key + 1), $dataTransferObject->name);
 				Assert::equal(array('id' => $key + 1, 'name' => md5($key + 1)), $dataTransferObject->toArray());
 			}
 			Assert::same(2, $mapper->repository->counter);
@@ -189,7 +195,10 @@ class Driver implements \Venne\DataTransfer\Driver
 	 */
 	public function getPrimaryKeyByObject($object)
 	{
-		return $object->getId();
+		return array(
+			'class' => get_class($object),
+			'primaryKey' => $object->getId(),
+		);
 	}
 
 	/**
@@ -199,7 +208,7 @@ class Driver implements \Venne\DataTransfer\Driver
 	public function getCacheDependenciesByObject($object)
 	{
 		return array(
-			Cache::TAGS => sprintf('%s#%s', get_class($object), $this->getPrimaryKeyByObject($object)),
+			Cache::TAGS => $this->getPrimaryKeyByObject($object),
 		);
 	}
 

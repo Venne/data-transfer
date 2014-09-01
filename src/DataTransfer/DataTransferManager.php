@@ -162,7 +162,7 @@ class DataTransferManager extends \Nette\Object
 	 */
 	protected function formatValuesCacheKey($class, $primaryKey)
 	{
-		return sprintf('[%s]%s', $class, $primaryKey);
+		return sprintf('values:[%s]%s', $class, serialize($primaryKey));
 	}
 
 }
