@@ -58,17 +58,7 @@ $article = new ArticleDTO(array(
 	'name' => 'fooName',
 ));
 
-$article = unserialize(serialize($article)); // it works
-
-echo $article->id;   // 1
-echo $article->name; // fooName
-echo $article->foo; // throw exception
-```
-
-
-### Lazy mode
-
-```php
+// Lazy mode
 $article = new ArticleDTO(function () {
 	return array(
 		'id' => 1,
@@ -98,20 +88,7 @@ $articles = DataTransferObjectIterator(ArticleDTO::class, array(
 	),
 ));
 
-$articles = unserialize(serialize($articles)); // it works
-
-echo count($articles);
-
-foreach ($articles as $article) {
-	echo $article->id;
-	echo $article->name;
-}
-```
-
-
-### Lazy iterator
-
-```php
+// Lazy mode
 $articles = DataTransferObjectIterator(ArticleDTO::class, function () {
 	return array(
 				array(
@@ -144,17 +121,23 @@ $dataTransferManager = $container->getByType('Venne\DataTransfer\DataTransferMan
 ```
 
 ```php
-$article = $dataTransferManager->createObject(ArticleDTO::class, function () {
-	return $this->articleRepository->find($this->id);
-});
+$article = $dataTransferManager
+	->createQuery(ArticleDTO::class, function () {
+		return $this->articleRepository->find($this->id);
+	})
+	->enableCache($key, $dependencies)
+	->fetch();
 ```
 
 ```php
-$articles = $dataTransferManager->createIterator(ArticleDTO::class, function () {
-	return $this->articleRepository->findBy(array(
-		'parent' => $this->id,
-	));
-});
+$articles = $dataTransferManager
+	->createQuery(ArticleDTO::class, function () {
+		return $this->articleRepository->findBy(array(
+			'parent' => $this->id,
+		));
+	})
+	->enableCache($key, $dependencies)
+	->fetchAll();
 ```
 
 
@@ -172,7 +155,10 @@ extensions:
 ### Usage
 
 ```php
-$this->template->article = $dataTransferManager->createObject(ArticleDTO::class, function () {
-	return $this->articleDao->find($this->id);
-});
+$this->template->article = $dataTransferManager
+	->createQuery(ArticleDTO::class, function () {
+		return $this->articleDao->find($this->id);
+	})
+	->enableCache($key, $dependencies)
+	->fetch();
 ```

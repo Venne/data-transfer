@@ -22,13 +22,15 @@ class DataTransferManagerTest extends \Tester\TestCase
 		$mapper = new Driver();
 		$dataTransferManager = new DataTransferManager(
 			$mapper,
-			new Cache(new DevNullStorage(), 'dataTransfer')
+			new Cache(new FileStorage(TEMP_DIR, new FileJournal(TEMP_DIR)), 'dataTransfer')
 		);
 
 		for ($x = 1; $x <= 4; $x++) {
-			$dataTransferObject = $dataTransferManager->createObject(DataTransfer::getClassName(), function () use ($mapper) {
-				return $mapper->repository->find(1);
-			});
+			$dataTransferObject = $dataTransferManager
+				->createQuery(DataTransfer::getClassName(), function () use ($mapper) {
+					return $mapper->repository->find(1);
+				})
+				->fetch();
 
 			Assert::type('VenneTests\DataTransfer\DataTransfer', $dataTransferObject);
 			Assert::equal(array('id' => 1, 'name' => md5(1)), $dataTransferObject->toArray());
@@ -45,9 +47,12 @@ class DataTransferManagerTest extends \Tester\TestCase
 		);
 
 		for ($x = 1; $x <= 4; $x++) {
-			$dataTransferObject = $dataTransferManager->createObject(DataTransfer::getClassName(), function () use ($mapper) {
-				return $mapper->repository->find(1);
-			});
+			$dataTransferObject = $dataTransferManager
+				->createQuery(DataTransfer::getClassName(), function () use ($mapper) {
+					return $mapper->repository->find(1);
+				})
+				->enableCache()
+				->fetch();
 
 			Assert::type('VenneTests\DataTransfer\DataTransfer', $dataTransferObject);
 			Assert::equal(array('id' => 1, 'name' => md5(1)), $dataTransferObject->toArray());
@@ -64,9 +69,11 @@ class DataTransferManagerTest extends \Tester\TestCase
 		);
 
 		for ($x = 1; $x <= 4; $x++) {
-			$dataTransferObjectIterator = $dataTransferManager->createIterator(DataTransfer::getClassName(), function () use ($mapper) {
-				return $mapper->repository->findAll();
-			});
+			$dataTransferObjectIterator = $dataTransferManager
+				->createQuery(DataTransfer::getClassName(), function () use ($mapper) {
+					return $mapper->repository->findAll();
+				})
+				->fetchAll();
 
 			Assert::type('Venne\DataTransfer\DataTransferObjectIterator', $dataTransferObjectIterator);
 			foreach ($dataTransferObjectIterator as $key => $dataTransferObject) {
@@ -87,9 +94,12 @@ class DataTransferManagerTest extends \Tester\TestCase
 		);
 
 		for ($x = 1; $x <= 4; $x++) {
-			$dataTransferObjectIterator = $dataTransferManager->createIterator(DataTransfer::getClassName(), function () use ($mapper) {
-				return $mapper->repository->findAll();
-			});
+			$dataTransferObjectIterator = $dataTransferManager
+				->createQuery(DataTransfer::getClassName(), function () use ($mapper) {
+					return $mapper->repository->findAll();
+				})
+				->enableCache()
+				->fetchAll();
 
 			Assert::type('Venne\DataTransfer\DataTransferObjectIterator', $dataTransferObjectIterator);
 			foreach ($dataTransferObjectIterator as $key => $dataTransferObject) {
@@ -101,9 +111,12 @@ class DataTransferManagerTest extends \Tester\TestCase
 		}
 
 		for ($x = 1; $x <= 4; $x++) {
-			$dataTransferObjectIterator = $dataTransferManager->createIterator(DataTransfer::getClassName(), function () use ($mapper) {
-				return $mapper->repository->findAll();
-			}, '1');
+			$dataTransferObjectIterator = $dataTransferManager
+				->createQuery(DataTransfer::getClassName(), function () use ($mapper) {
+					return $mapper->repository->findAll();
+				})
+				->enableCache('1')
+				->fetchAll();
 
 			Assert::type('Venne\DataTransfer\DataTransferObjectIterator', $dataTransferObjectIterator);
 			foreach ($dataTransferObjectIterator as $key => $dataTransferObject) {
