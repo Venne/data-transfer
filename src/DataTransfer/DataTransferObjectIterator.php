@@ -22,12 +22,16 @@ class DataTransferObjectIterator extends \Nette\Object implements \Iterator, \Co
 	/** @var int */
 	private $position = 0;
 
+	/** @var bool */
+	private $valuesAreValid;
+
 	/**
 	 * @param string $class
 	 * @param mixed[]|callable $rows
 	 * @param int|null $count
+	 * @param bool $valuesAreValid
 	 */
-	public function __construct($class, $rows, $count = null)
+	public function __construct($class, $rows, $count = null, $valuesAreValid = false)
 	{
 		if (!is_array($rows) && !is_callable($rows)) {
 			throw new \Nette\InvalidArgumentException(sprintf('Rows must be array of values or callable array source, %s given.', gettype($rows)));
@@ -36,6 +40,7 @@ class DataTransferObjectIterator extends \Nette\Object implements \Iterator, \Co
 		$this->class = '\\' . trim($class, '\\');;
 		$this->rows = $rows;
 		$this->count = $count;
+		$this->valuesAreValid = $valuesAreValid;
 	}
 
 	/**
@@ -72,7 +77,7 @@ class DataTransferObjectIterator extends \Nette\Object implements \Iterator, \Co
 	private function createObject($key)
 	{
 		if (!isset($this->objects[$key])) {
-			$this->objects[$key] = new $this->class($this->rows[$key]);
+			$this->objects[$key] = new $this->class($this->rows[$key], $this->valuesAreValid);
 		}
 	}
 

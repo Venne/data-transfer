@@ -25,19 +25,21 @@ abstract class DataTransferObject extends \Nette\Object
 	/** @var mixed[] */
 	private $validItems = array();
 
-	/** @var bool[] */
-	private $inGetValue = array();
-
 	/**
 	 * @param mixed[]|callable $values
+	 * @param bool $valuesAreValid
 	 */
-	public function __construct($values)
+	public function __construct($values, $valuesAreValid = false)
 	{
 		if (!is_array($values) && !is_callable($values)) {
 			throw new \Nette\InvalidArgumentException(sprintf('Values must be array or callable array source, %s given.', gettype($values)));
 		}
 
-		$this->values = $values;
+		if ($valuesAreValid) {
+			$this->validItems = $values;
+		} else {
+			$this->values = $values;
+		}
 	}
 
 	/**
@@ -65,11 +67,6 @@ abstract class DataTransferObject extends \Nette\Object
 	 */
 	protected function getValue($name)
 	{
-		if (isset($this->inGetValue[$name])) {
-			return $this->getRawValue($name);
-		}
-
-		$this->inGetValue[$name] = true;
 		$this->loadValues();
 
 		if (array_key_exists($name, $this->validItems)) {
@@ -92,7 +89,6 @@ abstract class DataTransferObject extends \Nette\Object
 			$value = $this->getRawValue($name);
 		}
 
-		unset($this->inGetValue[$name]);
 		return $this->validItems[$name] = $this->checkValue($name, $value);
 	}
 
@@ -100,7 +96,7 @@ abstract class DataTransferObject extends \Nette\Object
 	 * @param string $name
 	 * @return mixed
 	 */
-	private function getRawValue($name)
+	protected function getRawValue($name)
 	{
 		return array_key_exists($name, $this->values) ? $this->values[$name] : null;
 	}

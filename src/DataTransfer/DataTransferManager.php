@@ -69,11 +69,12 @@ class DataTransferManager extends \Nette\Object
 			});
 		}
 
+		$cacheDependencies = $query->getCacheDependencies();
 		$primaryKey = $this->cache->load(
 			$this->formatPrimaryKeysCacheKey($class, $query->getCacheKey()),
-			function (& $dependencies) use (& $values) {
-				$values = is_callable($values) ? Callback::invokeArgs($values, array(& $dependencies)) : $values;
-				$dependencies = Arrays::mergeTree((array) $dependencies, $this->driver->getCacheDependenciesByObject($values));
+			function (& $dependencies) use (& $values, & $cacheDependencies) {
+				$values = is_callable($values) ? Callback::invoke($values) : $values;
+				$dependencies = Arrays::mergeTree((array) $cacheDependencies, $this->driver->getCacheDependenciesByObject($values));
 
 				return $this->driver->getPrimaryKeyByObject($values);
 			}
@@ -81,15 +82,17 @@ class DataTransferManager extends \Nette\Object
 
 		$loadedValues = $this->cache->load(
 			$this->formatValuesCacheKey($class, $primaryKey),
-			function (& $dependencies) use (& $values, $class) {
-				$values = is_callable($values) ? Callback::invokeArgs($values, array(& $dependencies)) : $values;
-				$dependencies = Arrays::mergeTree((array) $dependencies, $this->driver->getCacheDependenciesByObject($values));
+			function (& $dependencies) use (& $values, & $cacheDependencies, $class) {
+				$values = is_callable($values) ? Callback::invoke($values) : $values;
+				$dependencies = Arrays::mergeTree((array) $cacheDependencies, $this->driver->getCacheDependenciesByObject($values));
 
-				return $this->driver->getValuesByObject($values, $class::getKeys());
+				/** @var DataTransferObject $dto */
+				$dto = new $class($this->driver->getValuesByObject($values, $class::getKeys()));
+				return $dto->toArray();
 			}
 		);
 
-		return new $class($loadedValues);
+		return new $class($loadedValues, true);
 	}
 
 	/**
@@ -110,7 +113,7 @@ class DataTransferManager extends \Nette\Object
 		}
 
 		if (!$query->isCacheEnabled()) {
-			return new DataTransferObjectIterator($class, function () use ($rows, $class) {
+			return new DataTransferObjectIterator($class, function () use (& $rows, $class) {
 				$rows = is_callable($rows) ? Callback::invoke($rows) : $rows;
 				$rowsData = array();
 
@@ -122,10 +125,11 @@ class DataTransferManager extends \Nette\Object
 			});
 		}
 
+		$cacheDependencies = $query->getCacheDependencies();
 		$primaryKeys = $this->cache->load(
 			$this->formatPrimaryKeysCacheKey(sprintf('%s[]', $class), $query->getCacheKey()),
-			function (&$dependencies) use (& $rows, $class) {
-				$rows = is_callable($rows) ? Callback::invokeArgs($rows, array(& $dependencies)) : $rows;
+			function (&$dependencies) use (& $rows, & $cacheDependencies, $class) {
+				$rows = is_callable($rows) ? Callback::invoke($rows) : $rows;
 				$primaryKeys = array();
 
 				foreach ($rows as $row) {
@@ -141,11 +145,16 @@ class DataTransferManager extends \Nette\Object
 		foreach ($primaryKeys as $index => $primaryKey) {
 			$loadedValues[] = $this->cache->load(
 				$this->formatValuesCacheKey($class, $primaryKey),
-				function (& $dependencies) use (& $rows, $class, $index) {
-					$rows = is_callable($rows) ? Callback::invokeArgs($rows, array(& $dependencies)) : $rows;
+				function (& $dependencies) use (& $rows, & $cacheDependencies, $class, $index) {
+					$rows = is_callable($rows) ? Callback::invoke($rows) : $rows;
 					$dependencies = Arrays::mergeTree((array) $dependencies, $this->driver->getCacheDependenciesByObject($rows[$index]));
 
-					return $this->driver->getValuesByObject($rows[$index], $class::getKeys());
+					$row = $rows[$index];
+					$row = is_callable($row) ? Callback::invoke($row) : $row;
+
+					/** @var DataTransferObject $dto */
+					$dto = new $class($this->driver->getValuesByObject($row, $class::getKeys()));
+					return $dto->toArray();
 				}
 			);
 		}
