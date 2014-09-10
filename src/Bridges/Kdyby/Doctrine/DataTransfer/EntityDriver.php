@@ -36,12 +36,16 @@ class EntityDriver extends \Nette\Object implements \Venne\DataTransfer\Driver
 	public function getValuesByObject($object, $keys)
 	{
 		$values = array();
+		$metadata = $this->entityManager->getClassMetadata(get_class($object));
 
-		foreach ($keys as $key) {
-			if (isset($object->$key)) {
-				$method = sprintf('get%s', ucfirst($key));
-				$values[$key] = call_user_func(array($object, $method));
-			}
+		foreach ($metadata->getFieldNames() as $columnName) {
+			$method = sprintf('get%s', ucfirst($columnName));
+			$values[$columnName] = call_user_func(array($object, $method));
+		}
+
+		foreach ($metadata->getAssociationMappings() as $association) {
+			$method = sprintf('get%s', ucfirst($association['fieldName']));
+			$values[$association['fieldName']] = call_user_func(array($object, $method));
 		}
 
 		return $values;
