@@ -23,8 +23,8 @@ class DataTransferObjectTest extends \Tester\TestCase
 			});
 			$fooDto->toArray();
 		}, 'Nette\InvalidStateException', 'Values must be array or callable array source, string given.');
-		Assert::type(FooDataTransfer::getClassName(), new FooDataTransfer(array(1, 2)));
-		Assert::type(FooDataTransfer::getClassName(), new FooDataTransfer(function () {
+		Assert::type(FooDataTransfer::class, new FooDataTransfer(array(1, 2)));
+		Assert::type(FooDataTransfer::class, new FooDataTransfer(function () {
 			return array(1, 2);
 		}));
 	}

@@ -55,7 +55,7 @@ class DataTransferExtensionTest extends \Tester\TestCase
 		$configurator->addConfig(__DIR__ . '/config/config.neon');
 		$container = $configurator->createContainer();
 
-		Assert::type(CacheInvalidationListener::getClassName(), $container->getService('kdybyDataTransfer.cacheInvalidationListener'));
+		Assert::type(CacheInvalidationListener::class, $container->getService('kdybyDataTransfer.cacheInvalidationListener'));
 	}
 
 }

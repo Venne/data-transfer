@@ -53,7 +53,7 @@ class DataTransferExtensionTest extends \Tester\TestCase
 		$container = $configurator->createContainer();
 
 		Assert::type('VenneTests\DataTransfer\DI\Driver', $container->getService('dataTransfer.driver'));
-		Assert::type(DataTransferManager::getClassName(), $container->getService('dataTransfer.dataTransferManager'));
+		Assert::type(DataTransferManager::class, $container->getService('dataTransfer.dataTransferManager'));
 		Assert::type('Nette\Caching\Cache', $container->getService('dataTransfer.cache'));
 	}
 

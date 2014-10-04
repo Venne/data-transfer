@@ -27,7 +27,7 @@ class DataTransferManagerTest extends \Tester\TestCase
 
 		for ($x = 1; $x <= 4; $x++) {
 			$dataTransferObject = $dataTransferManager
-				->createQuery(DataTransfer::getClassName(), function () use ($mapper) {
+				->createQuery(DataTransfer::class, function () use ($mapper) {
 					return $mapper->repository->find(1);
 				})
 				->fetch();
@@ -48,7 +48,7 @@ class DataTransferManagerTest extends \Tester\TestCase
 
 		for ($x = 1; $x <= 4; $x++) {
 			$dataTransferObject = $dataTransferManager
-				->createQuery(DataTransfer::getClassName(), function () use ($mapper) {
+				->createQuery(DataTransfer::class, function () use ($mapper) {
 					return $mapper->repository->find(1);
 				})
 				->enableCache()
@@ -70,7 +70,7 @@ class DataTransferManagerTest extends \Tester\TestCase
 
 		for ($x = 1; $x <= 4; $x++) {
 			$dataTransferObjectIterator = $dataTransferManager
-				->createQuery(DataTransfer::getClassName(), function () use ($mapper) {
+				->createQuery(DataTransfer::class, function () use ($mapper) {
 					return $mapper->repository->findAll();
 				})
 				->fetchAll();
@@ -95,7 +95,7 @@ class DataTransferManagerTest extends \Tester\TestCase
 
 		for ($x = 1; $x <= 4; $x++) {
 			$dataTransferObjectIterator = $dataTransferManager
-				->createQuery(DataTransfer::getClassName(), function () use ($mapper) {
+				->createQuery(DataTransfer::class, function () use ($mapper) {
 					return $mapper->repository->findAll();
 				})
 				->enableCache()
@@ -112,7 +112,7 @@ class DataTransferManagerTest extends \Tester\TestCase
 
 		for ($x = 1; $x <= 4; $x++) {
 			$dataTransferObjectIterator = $dataTransferManager
-				->createQuery(DataTransfer::getClassName(), function () use ($mapper) {
+				->createQuery(DataTransfer::class, function () use ($mapper) {
 					return $mapper->repository->findAll();
 				})
 				->enableCache('1')

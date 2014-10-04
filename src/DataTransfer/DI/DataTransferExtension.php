@@ -49,10 +49,10 @@ class DataTransferExtension extends \Nette\DI\CompilerExtension
 			->setAutowired(false);
 
 		$container->addDefinition($this->prefix('dataTransferManager'))
-			->setClass(DataTransferManager::getClassName(), array(1 => $this->prefix('@cache')));
+			->setClass(DataTransferManager::class, array(1 => $this->prefix('@cache')));
 
 		$container->addDefinition($this->prefix('cacheInvalidationListener'))
-			->setClass(CacheInvalidationListener::getClassName(), array($this->prefix('@cache')))
+			->setClass(CacheInvalidationListener::class, array($this->prefix('@cache')))
 			->addTag(EventsExtension::TAG_SUBSCRIBER);
 	}
 

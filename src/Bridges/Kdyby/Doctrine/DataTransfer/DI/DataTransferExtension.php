@@ -36,7 +36,7 @@ class DataTransferExtension extends \Nette\DI\CompilerExtension
 		}
 
 		$container->addDefinition($this->prefix('cacheInvalidationListener'))
-			->setClass(CacheInvalidationListener::getClassName(), array($cache))
+			->setClass(CacheInvalidationListener::class, array($cache))
 			->addTag(EventsExtension::TAG_SUBSCRIBER);
 	}
 

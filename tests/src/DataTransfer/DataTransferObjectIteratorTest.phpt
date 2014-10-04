@@ -16,16 +16,16 @@ class DataTransferObjectIteratorTest extends \Tester\TestCase
 	public function testConstructor()
 	{
 		Assert::exception(function () {
-			new DataTransferObjectIterator(FooDataTransfer::getClassName(), 'foo');
+			new DataTransferObjectIterator(FooDataTransfer::class, 'foo');
 		}, 'Nette\InvalidArgumentException', 'Rows must be array of values or callable array source, string given.');
 		Assert::exception(function () {
-			$dataTransferObjectIterator = new DataTransferObjectIterator(FooDataTransfer::getClassName(), function () {
+			$dataTransferObjectIterator = new DataTransferObjectIterator(FooDataTransfer::class, function () {
 				return 'string';
 			});
 			$dataTransferObjectIterator->toArray();
 		}, 'Nette\InvalidStateException', 'Rows must be array of values or callable array source, string given.');
-		Assert::type(DataTransferObjectIterator::getClassName(), new DataTransferObjectIterator(FooDataTransfer::getClassName(), array(1, 2)));
-		Assert::type(DataTransferObjectIterator::getClassName(), new DataTransferObjectIterator(FooDataTransfer::getClassName(), function () {
+		Assert::type(DataTransferObjectIterator::class, new DataTransferObjectIterator(FooDataTransfer::class, array(1, 2)));
+		Assert::type(DataTransferObjectIterator::class, new DataTransferObjectIterator(FooDataTransfer::class, function () {
 			return array(1, 2);
 		}));
 	}
@@ -45,7 +45,7 @@ class DataTransferObjectIteratorTest extends \Tester\TestCase
 			),
 		);
 
-		$dataTransferIterator = new DataTransferObjectIterator(FooDataTransfer::getClassName(), $items);
+		$dataTransferIterator = new DataTransferObjectIterator(FooDataTransfer::class, $items);
 		Assert::type('\Traversable', $dataTransferIterator);
 		Assert::count(2, $dataTransferIterator);
 		foreach ($dataTransferIterator as $key => $dataTransferObject) {
