@@ -37,7 +37,7 @@ class DataTransferObjectIterator extends \Nette\Object implements \Iterator, \Co
 			throw new \Nette\InvalidArgumentException(sprintf('Rows must be array of values or callable array source, %s given.', gettype($rows)));
 		}
 
-		$this->class = '\\' . trim($class, '\\');;
+		$this->class = '\\' . trim($class, '\\');
 		$this->rows = $rows;
 		$this->count = $count;
 		$this->valuesAreValid = $valuesAreValid;

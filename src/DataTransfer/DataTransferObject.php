@@ -54,7 +54,7 @@ abstract class DataTransferObject extends \Nette\Object
 	 * @param string $name
 	 * @return mixed
 	 */
-	public function  &__get($name)
+	public function &__get($name)
 	{
 		$value = $this->getValue($name);
 

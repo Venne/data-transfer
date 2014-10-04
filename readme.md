@@ -157,7 +157,7 @@ extensions:
 ```php
 $this->template->article = $dataTransferManager
 	->createQuery(ArticleDTO::class, function () {
-		return $this->articleDao->find($this->id);
+		return $this->articleRepository->find($this->id);
 	})
 	->enableCache($key, $dependencies)
 	->fetch();
