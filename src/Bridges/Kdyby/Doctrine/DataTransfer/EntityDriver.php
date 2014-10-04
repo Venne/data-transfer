@@ -4,7 +4,10 @@ namespace Venne\Bridges\Kdyby\Doctrine\DataTransfer;
 
 use Kdyby\Doctrine\Entities\BaseEntity;
 use Kdyby\Doctrine\EntityManager;
+use Kdyby\Doctrine\MemberAccessException;
 use Nette\Caching\Cache;
+use Symfony\Component\PropertyAccess\PropertyAccessor;
+use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
 class EntityDriver extends \Nette\Object implements \Venne\DataTransfer\Driver
 {
@@ -15,9 +18,15 @@ class EntityDriver extends \Nette\Object implements \Venne\DataTransfer\Driver
 	/** @var \Kdyby\Doctrine\EntityManager */
 	private $entityManager;
 
-	public function __construct(EntityManager $entityManager)
+	/** @var \Symfony\Component\PropertyAccess\PropertyAccessorInterface */
+	private $propertyAccessor;
+
+	public function __construct(EntityManager $entityManager, PropertyAccessorInterface $propertyAccessor = null)
 	{
 		$this->entityManager = $entityManager;
+		$this->propertyAccessor = $propertyAccessor !== null
+			? $propertyAccessor
+			: new PropertyAccessor(true, true);
 	}
 
 	/**
@@ -39,13 +48,25 @@ class EntityDriver extends \Nette\Object implements \Venne\DataTransfer\Driver
 		$metadata = $this->entityManager->getClassMetadata(get_class($object));
 
 		foreach ($metadata->getFieldNames() as $columnName) {
-			$method = sprintf('get%s', ucfirst($columnName));
-			$values[$columnName] = call_user_func(array($object, $method));
+			try {
+				if ($this->propertyAccessor->isReadable($object, $columnName)) {
+					$values[$columnName] = $this->propertyAccessor->getValue($object, $columnName);
+				}
+			} catch (MemberAccessException $e) {
+
+			}
 		}
 
 		foreach ($metadata->getAssociationMappings() as $association) {
-			$method = sprintf('get%s', ucfirst($association['fieldName']));
-			$values[$association['fieldName']] = call_user_func(array($object, $method));
+			$columnName = $association['fieldName'];
+
+			try {
+				if ($this->propertyAccessor->isReadable($object, $columnName)) {
+					$values[$columnName] = $this->propertyAccessor->getValue($object, $columnName);
+				}
+			} catch (MemberAccessException $e) {
+
+			}
 		}
 
 		return $values;
@@ -57,9 +78,9 @@ class EntityDriver extends \Nette\Object implements \Venne\DataTransfer\Driver
 	 */
 	public function getObjectByPrimaryKey($primaryKey)
 	{
-		$dao = $this->entityManager->getRepository($primaryKey[self::ENTITY_CLASS]);
+		$repository = $this->entityManager->getRepository($primaryKey[self::ENTITY_CLASS]);
 
-		return $dao->find($primaryKey[self::PRIMARY_KEY]);
+		return $repository->find($primaryKey[self::PRIMARY_KEY]);
 	}
 
 	/**
