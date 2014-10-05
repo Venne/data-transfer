@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="venne/data-transfer" default="build">
+
+	<property name="path.venne.data-transfer.tester.executable" value="${path.bin}/tester"/>
+	<property name="path.venne.data-transfer.phpcs.executable" value="${path.bin}/phpcs"/>
+	<property name="path.venne.data-transfer.root" value="${path.vendor}/venne/data-transfer"/>
+	<property name="path.venne.data-transfer.build" value="${path.venne.data-transfer.root}/build"/>
+	<property name="path.venne.data-transfer.src" value="${path.venne.data-transfer.root}/src"/>
+	<property name="path.venne.data-transfer.tests" value="${path.venne.data-transfer.root}/tests"/>
+	<property name="path.venne.data-transfer.phpcs.ruleset" value="${path.venne.data-transfer.build}/ruleset.xml"/>
+
+	<target name="build">
+	</target>
+
+	<target name="check" depends="check-php,tester"/>
+
+	<target name="check-php" depends="phpcs"/>
+
+	<target name="phpcs">
+		<exec
+				executable="${path.venne.data-transfer.phpcs.executable}"
+				logoutput="true"
+				passthru="true"
+				checkreturn="true"
+				>
+			<arg value="--standard=${path.venne.data-transfer.phpcs.ruleset}"/>
+			<arg value="--extensions=php"/>
+			<arg value="--encoding=utf-8"/>
+			<arg value="--tab-width=4"/>
+			<arg value="-sp"/>
+			<arg path="${path.venne.data-transfer.src}"/>
+		</exec>
+	</target>
+
+	<target name="tester">
+		<exec
+				executable="${path.venne.data-transfer.tester.executable}"
+				logoutput="true"
+				passthru="true"
+				checkreturn="true"
+				>
+			<arg path="${path.venne.data-transfer.tests}"/>
+			<arg value="-s"/>
+			<arg value="-c"/>
+			<arg value="${path.venne.data-transfer.tests}/php-unix.ini"/>
+		</exec>
+	</target>
+
+</project>
