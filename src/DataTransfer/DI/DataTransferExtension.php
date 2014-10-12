@@ -22,6 +22,17 @@ use Venne\DataTransfer\DataTransferManager;
 class DataTransferExtension extends \Nette\DI\CompilerExtension
 {
 
+	/** @var string */
+	private $driverClass;
+
+	/**
+	 * @param string $driverClass
+	 */
+	public function setDriverClass($driverClass)
+	{
+		$this->driverClass = $driverClass;
+	}
+
 	/**
 	 * @return string[]
 	 */
@@ -40,9 +51,6 @@ class DataTransferExtension extends \Nette\DI\CompilerExtension
 		$container = $this->getContainerBuilder();
 		$config = $this->getConfig($this->getDefaults());
 
-		$container->addDefinition($this->prefix('driver'))
-			->setClass($config['driver']);
-
 		$container->addDefinition($this->prefix('cache'))
 			->setClass('Nette\Caching\Cache', array(1 => $container::literal('$namespace')))
 			->setParameters(array('namespace' => $config['cache']['namespace']))
@@ -54,6 +62,15 @@ class DataTransferExtension extends \Nette\DI\CompilerExtension
 		$container->addDefinition($this->prefix('cacheInvalidationListener'))
 			->setClass(CacheInvalidationListener::class, array($this->prefix('@cache')))
 			->addTag(EventsExtension::TAG_SUBSCRIBER);
+	}
+
+	public function beforeCompile()
+	{
+		$container = $this->getContainerBuilder();
+		$config = $this->getConfig($this->getDefaults());
+
+		$container->addDefinition($this->prefix('driver'))
+			->setClass($this->driverClass !== null ? $this->driverClass : $config['driver']);
 	}
 
 }
