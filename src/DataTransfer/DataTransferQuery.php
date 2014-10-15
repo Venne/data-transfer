@@ -50,8 +50,7 @@ class DataTransferQuery extends \Nette\Object
 		$cacheEnable = false,
 		$cacheKey = null,
 		$cacheDependencies = null
-	)
-	{
+	) {
 		$this->manager = $manager;
 		$this->class = $class;
 		$this->driver = $driver;
