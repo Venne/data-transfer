@@ -70,8 +70,10 @@ class DataTransferManager extends \Nette\Object
 		}
 
 		$cacheDependencies = $query->getCacheDependencies();
+		$primaryKeysCacheKey = $this->formatPrimaryKeysCacheKey($class, $query->getCacheKey());
+
 		$primaryKey = $this->cache->load(
-			$this->formatPrimaryKeysCacheKey($class, $query->getCacheKey()),
+			$primaryKeysCacheKey,
 			function (& $dependencies) use (& $values, & $cacheDependencies) {
 				$values = is_callable($values) ? Callback::invoke($values) : $values;
 				$dependencies = Arrays::mergeTree((array) $cacheDependencies, $this->driver->getCacheDependenciesByObject($values));
@@ -81,7 +83,7 @@ class DataTransferManager extends \Nette\Object
 		);
 
 		$loadedValues = $this->cache->load(
-			$this->formatValuesCacheKey($class, $primaryKey),
+			array($this->formatValuesCacheKey($class, $primaryKey), $primaryKeysCacheKey),
 			function (& $dependencies) use (& $values, & $cacheDependencies, $class) {
 				$values = is_callable($values) ? Callback::invoke($values) : $values;
 				$dependencies = Arrays::mergeTree((array) $cacheDependencies, $this->driver->getCacheDependenciesByObject($values));
@@ -126,8 +128,10 @@ class DataTransferManager extends \Nette\Object
 		}
 
 		$cacheDependencies = $query->getCacheDependencies();
+		$primaryKeysCacheKey = $this->formatPrimaryKeysCacheKey(sprintf('%s[]', $class), $query->getCacheKey());
+
 		$primaryKeys = $this->cache->load(
-			$this->formatPrimaryKeysCacheKey(sprintf('%s[]', $class), $query->getCacheKey()),
+			$primaryKeysCacheKey,
 			function (&$dependencies) use (& $rows, & $cacheDependencies, $class) {
 				$rows = is_callable($rows) ? Callback::invoke($rows) : $rows;
 				$primaryKeys = array();
@@ -144,7 +148,7 @@ class DataTransferManager extends \Nette\Object
 		$loadedValues = array();
 		foreach ($primaryKeys as $index => $primaryKey) {
 			$loadedValues[] = $this->cache->load(
-				$this->formatValuesCacheKey($class, $primaryKey),
+				array($this->formatValuesCacheKey($class, $primaryKey), $primaryKeysCacheKey),
 				function (& $dependencies) use (& $rows, & $cacheDependencies, $class, $index) {
 					$rows = is_callable($rows) ? Callback::invoke($rows) : $rows;
 					$dependencies = Arrays::mergeTree((array) $dependencies, $this->driver->getCacheDependenciesByObject($rows[$index]));
